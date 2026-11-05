@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Retailer ordering flow: onboarding to delivery</title>
+<style>
+:root{color-scheme:light;--bg:#f6f5f1;--card:#fff;--text:#1f1e1c;--muted:#6b6a65;--line:#dcdad2;--acc:#185fa5;--accbg:#e6f1fb;--ok:#0f6e56;--bad:#a32d2d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#1b1b19;--card:#262624;--text:#f0eee8;--muted:#a3a198;--line:#3d3d3a;--acc:#85b7eb;--accbg:#0c447c;--ok:#5dcaa5;--bad:#f09595}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#1b1b19;--card:#262624;--text:#f0eee8;--muted:#a3a198;--line:#3d3d3a;--acc:#85b7eb;--accbg:#0c447c;--ok:#5dcaa5;--bad:#f09595}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:20px 16px}
+.wrap{max-width:780px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 18px;font-size:14px}
+.main{display:flex;flex-direction:column;align-items:center;gap:14px}
+.phone{position:relative;overflow:hidden;width:300px;max-width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:26px;height:480px;font-size:13px}
+#scr{height:100%;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;overflow-y:auto}
+#scr h3{font-size:16px;font-weight:600;margin:4px 0 6px}
+#scr p{margin:0 0 10px;color:var(--muted)}
+input{font:inherit;color:var(--text);background:transparent;border:1px solid var(--line);border-radius:8px;padding:10px;width:100%;box-sizing:border-box;margin-bottom:8px}
+input:focus{outline:2px solid var(--acc);outline-offset:0}
+.otp{display:flex;gap:6px;margin:6px 0 8px}.otp input{text-align:center;padding:10px 0;font-size:16px;margin:0}
+button{font:inherit;cursor:pointer}
+.btn{margin-top:auto;background:var(--acc);color:var(--bg);border:0;border-radius:8px;padding:11px;font-weight:600;width:100%}
+.btn.alt{background:transparent;border:1px solid var(--line);color:var(--text);margin-top:8px}
+.lnk{background:none;border:0;color:var(--acc);padding:4px 0;text-align:left}
+.err{color:var(--bad);min-height:18px;font-size:12px;margin:0 0 6px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.q{display:flex;align-items:center;gap:8px}.q button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);padding:0}
+.chips{display:flex;gap:6px;margin:8px 0}.chips button{flex:1;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:8px;padding:8px 0}.chips button.on{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.hd b{font-weight:600}
+.bell{position:relative;background:none;border:0;color:var(--text);padding:2px}
+.bdg{position:absolute;top:-4px;right:-6px;background:var(--bad);color:#fff;border-radius:9px;font-size:10px;padding:0 5px;line-height:15px}
+.inbox{position:absolute;inset:0;background:var(--card);z-index:4;padding:16px;overflow-y:auto}
+.nt{border-top:1px solid var(--line);padding:9px 0}.nt b{display:block;font-weight:600}.nt span{color:var(--muted)}.nt.u b:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc);margin-right:6px}
+#toast{position:absolute;top:10px;left:10px;right:10px;z-index:6;background:#2c2c2a;color:#f1efe8;border-radius:12px;padding:10px 12px;transform:translateY(-140%);transition:transform .3s}
+#toast.on{transform:translateY(0)}#toast b{display:block;font-weight:600}#toast span{color:#d3d1c7}
+.ic{width:84px;height:84px;border-radius:50%;background:var(--accbg);color:var(--acc);display:flex;align-items:center;justify-content:center;margin:26px auto 14px}
+.ob{text-align:center}.dots2{display:flex;gap:5px;justify-content:center;margin:10px 0 14px}.dots2 i{width:7px;height:7px;border-radius:50%;background:var(--line)}.dots2 i.on{background:var(--acc)}
+.stp{margin:10px 0}.stp .d{position:relative;padding:0 0 16px 24px}.stp .d:before{content:"";position:absolute;left:4px;top:14px;bottom:-2px;width:2px;background:var(--line)}.stp .d:last-child:before{display:none}.stp .d:after{content:"";position:absolute;left:0;top:4px;width:10px;height:10px;border-radius:50%;background:var(--line)}.stp .d.done:before,.stp .d.done:after{background:var(--ok)}.stp .d.now:after{background:var(--acc);box-shadow:0 0 0 4px var(--accbg)}.stp b{font-weight:600}.stp small{display:block;color:var(--muted)}
+.stats{display:flex;gap:8px;margin:8px 0}.stats div{flex:1;background:var(--bg);border-radius:10px;padding:10px}.stats small{display:block;color:var(--muted)}.stats b{font-size:18px;font-weight:600}.card.act{border:1px solid var(--acc);background:var(--accbg);color:var(--acc);border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}.card small{display:block}.card b{font-size:16px;font-weight:600}.card.w{border:1px solid var(--line);border-radius:10px;padding:10px;margin:0 0 8px;cursor:pointer}.card.w:hover{border-color:var(--acc)}.card.w small{color:var(--muted)}.pill{display:inline-block;background:var(--accbg);color:var(--acc);border-radius:6px;padding:0 6px;font-size:11px;margin-left:6px;font-weight:400}.tag{display:inline-block;background:var(--accbg);color:var(--acc);border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:8px}
+.info{width:300px;max-width:100%}.info h2{font-size:17px;font-weight:600;margin:0 0 6px}
+.box{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:12px 0;color:var(--muted);font-size:14px}.box b{color:var(--text);font-weight:600}
+.sim{display:none;margin-top:6px;border:1px dashed var(--acc);background:transparent;color:var(--acc);border-radius:8px;padding:9px 14px}
+.nav{display:flex;align-items:center;gap:10px;margin-top:18px}.nav button{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:8px;padding:8px 16px}.nav button.p{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.dots{display:flex;gap:6px;flex:1}.dots i{height:5px;flex:1;border-radius:3px;background:var(--line)}.dots i.on{background:var(--acc)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+
+<div class="main">
+<div class="phone"><div id="toast"></div><div id="scr"></div></div>
+<div class="info">
+
+
+
+
+<button class="sim" id="sim"></button>
+<div class="nav"><button id="back">Back</button><div class="dots" id="dots"></div><button class="p" id="next">Next</button></div>
+</div>
+</div>
+</div>
+<script>
+var $=function(i){return document.getElementById(i)},tm,st;
+var OB=[["Restock without the trip","Order from your wholesaler any time, even at night.",'<path d="M4 8l8-4 8 4v8l-8 4-8-4z" fill="none" stroke="currentColor" stroke-width="2"/>'],["Know when it arrives","Follow each order from accepted to delivered.",'<path d="M2 7h12v9H2zM14 10h5l3 3v3h-8z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="18" cy="18" r="2" fill="currentColor"/>'],["Stay in the loop","Get a message when your order is accepted, dispatched, and delivered.",'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4" fill="none" stroke="currentColor" stroke-width="2"/>']];
+var W=[{n:"Mama Sade Wholesale",t:"Wholesaler",d:"4.2 km",w:"Tomorrow, 10am to 1pm",min:20000,r:0,it:[["Indomie carton",8500],["Peak milk tin",6000],["Sugar 1kg pack",3000]]},{n:"Bola Beverages Depot",t:"Distributor",d:"3.1 km",w:"Tomorrow, 2pm to 5pm",min:15000,r:1,it:[["Bottled water pack",1800],["Soft drink crate",5200],["Malt carton",9500]]},{n:"Ogun Foods Distributors",t:"Distributor",d:"7.8 km",w:"Same day, by 6pm",min:50000,r:0,it:[["Rice 50kg bag",78000],["Vegetable oil 25L",42000],["Tomato paste carton",16000]]},{n:"Sagamu Cash and Carry",t:"Wholesaler",d:"12 km",w:"In 2 days",min:30000,r:2,it:[["Detergent carton",14500],["Bar soap carton",11000],["Toothpaste carton",9000]]}];
+var D=[{n:"Kola Cash and Carry",t:"Wholesaler",d:"6.5 km",code:"KCC-215",w:"Tomorrow, 11am to 2pm",min:25000,r:0,it:[["Spaghetti carton",9000],["Tomato paste carton",14000],["Margarine carton",12500]]},{n:"Lagos Foods Depot",t:"Distributor",d:"9.0 km",code:"LFD-309",w:"In 2 days",min:40000,r:1,it:[["Rice 25kg bag",42000],["Beans 50kg bag",65000],["Garri 50kg bag",28000]]}];
+function cw(){return W[st&&st.w!=null?st.w:0]}
+var IT=W[0].it;
+var STG=[["Order placed","Just now"],["Accepted","Waiting for wholesaler"],["Packed","Waiting"],["Dispatched","Waiting"],["Delivered","Tomorrow, 10am to 1pm"]];
+var SIM=["Wholesaler accepts the order","Wholesaler marks it packed","Rider dispatched","Rider marks delivered"];
+var NT=[["Order accepted","{w} accepted your order."],["Order packed","Your order is packed and waiting for a rider."],["On the way","Tunde is on the way. Arriving in about 18 min."],["Delivered","Your order has arrived. Please confirm what you received."]];
+var P=[
+["Welcome and notifications","Short intro, then the one permission that matters: notifications. Retailers should hear about orders without opening the app.","Nothing yet."],
+["Sign in with phone number and PIN","Retailers already use their number for everything. One screen: the number plus a 4-digit PIN that is quick to type and easy to remember. Lock the account after 5 wrong tries, and reset by SMS code if the PIN is forgotten.","Has pre-registered this number from their customer list."],
+
+["Confirm your shop","The wholesaler brings the retailer, so there is no search and no cold start.","Gets the delivery location once, so every route starts from a real address."],
+["Home dashboard","After sign-in the retailer lands on home, not straight into an order form. Home shows what is happening and offers one clear next action.","Sees which retailers ordered this week, who is due to restock, and who owes money."],
+["Browse wholesalers, then order","The retailer picks who to buy from, then orders in a few taps. The invited wholesaler is pinned first; more suppliers can come once the pilot works.","Appears in the retailer's list with delivery window and minimum order. New order lands in their queue with a stock check and distance."],
+["Track the order","A line stepper answers the real question: is it coming, and when. Notifications fire at every stage.","Taps each stage as it happens. Try the dashed button to play this role."],
+["Confirm and record","Confirmation closes the loop and builds the record that later supports credit.","Gets proof of delivery and an updated ledger for this retailer."]];
+function reset(){W.length=4;st={fs:0,fq:"",rq:[],acc:1,s:0,ob:0,ph:"",shop:"Ade Provisions",q:[5,2,10],pay:"Pay on delivery",stage:0,n:[],inbox:0,done:0,allow:0,placed:0,hist:[["Last week",61200],["2 weeks ago",48900]],w:null,wq:"",wf:"All",sc:0,rp:0,rep:0,win:1,res:0,rr:0,ph1:0,mode:"in",addr:"12 Market Road, Ijebu Ode"};IT=W[0].it}
+function total(){return IT.reduce(function(a,x,i){return a+x[1]*st.q[i]},0)}
+function money(n){return "N"+n.toLocaleString("en-US")}
+function notify(t,b){st.n.unshift({t:t,b:b,r:0});var e=$("toast");e.innerHTML="<b>"+t+"</b><span>"+b+"</span>";e.className="on";clearTimeout(tm);tm=setTimeout(function(){e.className=""},3800);if(st.s>=3)draw()}
+function head(){var u=st.n.filter(function(x){return!x.r}).length;return '<div class="hd"><b>'+st.shop+'</b><button class="bell" data-a="bell" aria-label="Notifications"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4" fill="none" stroke="currentColor" stroke-width="2"/></svg>'+(u?'<span class="bdg">'+u+'</span>':'')+'</button></div>'}
+function inbox(){return '<div class="inbox"><div class="hd"><b>Notifications</b><button class="lnk" data-a="bell">Close</button></div>'+(st.n.length?st.n.map(function(x){return '<div class="nt'+(x.r?'':' u')+'"><b>'+x.t+'</b><span>'+x.b+'</span></div>'}).join(""):'<p style="color:var(--muted)">Nothing yet. Place an order and updates will show up here.</p>')+'</div>'}
+function stepper(){return '<div class="stp">'+STG.map(function(g,i){var c=i<st.stage?"done":i==st.stage?"now":"";var sub=i<=st.stage?(i==st.stage&&i<4?"In progress":i==4?"Done":"Done"):g[1];if(i==0)sub=i<st.stage?"Done":"Just now";if(i==4&&st.stage<4)sub=cw().w;return '<div class="d '+c+'"><b>'+g[0]+'</b><small>'+sub+'</small></div>'}).join("")+'</div>'}
+function wrows(){var q=(st.wq||"").toLowerCase(),r=W.map(function(x,i){return[x,i]}).filter(function(p){return(st.wf=="All"||p[0].t==st.wf)&&p[0].n.toLowerCase().indexOf(q)>-1});return r.length?r.map(function(p){var x=p[0];return '<div class="card w" data-a="pick" data-i="'+p[1]+'"><b>'+x.n+(p[1]==0&&st.acc?'<span class="pill">Your usual</span>':'')+'</b><small>'+x.t+' · '+x.d+'</small><small>Delivery: '+x.w+' · Min '+money(x.min)+'</small></div>'}).join(""):'<p>No match. Try another name.</p>'}
+var RL=["Pay before dispatch","50% deposit","Credit for trusted retailers"];
+function payinfo(){var r=cw().r,t=total(),h=Math.round(t/2);return r==0?[cw().n+" packs your order after you pay. Your money is held safely until delivery, plus 24 hours.","Pay "+money(t)+" and order"]:r==1?["Pay a deposit of "+money(h)+" now and the rest on delivery. The deposit is held safely until delivery, plus 24 hours.","Pay "+money(h)+" deposit and order"]:["On credit: pay later. "+cw().n+" trusts you for orders up to N60,000.","Order on credit"]}
+function wtext(done){if(st.res)return "Resolved. "+cw().n+" offered a 10% refund ("+money(Math.round(total()*.1))+") and a replacement for the damaged items. The rest of your payment was released.";if(st.rep)return "Your report was sent. Payment stays held while "+cw().n+" responds.";if(!st.win)return "The 24-hour window has closed. Payment was released to "+cw().n+".";return (done?"Thanks. ":"Check the items, then confirm. ")+"You have 24 hours after delivery to report a problem. Payment stays held until then."}
+function rep(){var RS=["Damaged items","Missing items","Wrong items","Expired product"];return head()+'<h3 style="margin:2px 0 6px">Report a problem</h3><p>You can report within 24 hours of delivery. Payment stays held while it is sorted out.</p><div class="chips" style="flex-direction:column">'+RS.map(function(x,i){return '<button data-a="rr" data-v="'+i+'" class="'+(st.rr==i?"on":"")+'">'+x+'</button>'}).join("")+'</div><button class="btn alt" style="margin:0 0 6px" data-a="photo">'+(st.ph1?"Photo added":"Add a photo")+'</button><button class="btn" style="margin:0 0 6px" data-a="rsub">Send report</button><button class="btn alt" style="margin:0" data-a="rcan">Cancel</button>'+(st.inbox?inbox():"")}
+function frows(){var q=(st.fq||"").toLowerCase(),r=D.map(function(x,i){return[x,i]}).filter(function(p){return W.indexOf(p[0])<0&&(p[0].n.toLowerCase().indexOf(q)>-1||p[0].code.toLowerCase().indexOf(q)>-1)});return r.length?r.map(function(p){var x=p[0],rd=st.rq.indexOf(p[1])>-1;return '<div class="card w"><b>'+x.n+'</b><small>'+x.t+' \u00b7 '+x.d+' \u00b7 Code '+x.code+'</small><small>Minimum order '+money(x.min)+'</small>'+(rd?'<small style="color:var(--acc)">Requested. Waiting for approval.</small>':'<button class="btn alt" style="margin:6px 0 0;padding:7px" data-a="req" data-i="'+p[1]+'">Request to connect</button>')+'</div>'}).join(""):'<p>No supplier found. Check the name or code, or ask them to add your phone number.</p>'}
+function fsc(){return head()+'<button class="lnk" data-a="fsx">&lsaquo; Back</button><h3 style="margin:2px 0 6px">Find a supplier</h3><p>Search by name, or type the supplier code. The supplier approves your request.</p><input id="fq" placeholder="Name or code, for example KCC-215" value="'+st.fq+'" aria-label="Supplier name or code"><div id="fl">'+frows()+'</div>'+(st.inbox?inbox():"")}
+function scan(){return head()+'<h3 style="margin:2px 0 6px">Scan QR code</h3><p>Point your camera at the wholesaler QR code.</p><div style="border:2px dashed var(--acc);border-radius:12px;height:150px;display:flex;align-items:center;justify-content:center;color:var(--muted);margin-bottom:10px">Camera view</div><button class="btn" style="margin:0 0 6px" data-a="scanok">Demo: scan Bola Beverages Depot</button><button class="btn alt" style="margin:0" data-a="scanx">Cancel</button>'+(st.inbox?inbox():'')}
+function wl(){return head()+'<h3 style="margin:2px 0 6px">Choose where to order</h3><div style="display:flex;gap:6px;margin:0 0 8px"><button class="btn alt" style="margin:0" data-a="fs">Find a supplier</button><button class="btn alt" style="margin:0" data-a="scan">Scan QR</button></div><input id="wq" type="search" placeholder="Search wholesalers" value="'+st.wq+'" aria-label="Search wholesalers"><div class="chips">'+["All","Wholesaler","Distributor"].map(function(v){return '<button data-a="wf" data-v="'+v+'" class="'+(st.wf==v?"on":"")+'">'+v+'</button>'}).join("")+'</div><div id="wl">'+wrows()+'</div>'+(st.inbox?inbox():"")}
+function pinbox(c,l){return '<div class="otp">'+[0,1,2,3].map(function(i){return '<input class="'+c+'" type="password" maxlength="1" inputmode="numeric" aria-label="'+l+' digit '+(i+1)+'">'}).join("")+'</div>'}
+function signup(){return '<h3>Create account</h3><p>Use your phone number and choose a PIN.</p><input id="ph" type="tel" inputmode="tel" placeholder="0803 000 0000" value="'+st.ph+'" aria-label="Phone number"><p style="margin:2px 0 0">Choose a 4-digit PIN</p>'+pinbox("o","PIN")+'<p style="margin:0">Confirm PIN</p>'+pinbox("o2","Confirm PIN")+'<div class="err" id="err"></div><button class="lnk" data-a="toin">Already have an account? Sign in</button><button class="btn" data-a="create">Create account</button>'}
+function dash(){var act=st.placed&&!st.done,c=act?'<div class="card act" data-a="track"><small>Active order</small><b>'+money(total())+'</b><span>'+STG[st.stage][0]+'. Tap to track.</span></div>':'';return head()+'<h3 style="margin:2px 0 8px">Good morning</h3><div class="stats"><div><small>Orders this month</small><b>'+st.hist.length+'</b></div><div><small>Balance owed</small><b>N0</b></div></div>'+c+'<button class="btn" data-a="restock" style="margin-top:6px">Order from a wholesaler</button><p style="margin:14px 0 2px">Recent orders</p>'+(st.hist.slice(0,3).map(function(x){return '<div class="row"><span>'+x[0]+'</span><span>'+money(x[1])+' <span style="color:var(--ok)">Delivered</span></span></div>'}).join("")||'<p>No orders yet. Your first one will show up here.</p>')+(st.inbox?inbox():"")}
+function scr(){var s=st.s,h="";
+if(s==0){var o=OB[st.ob],last=st.ob==2;return '<div class="ob"><div class="ic"><svg width="40" height="40" viewBox="0 0 24 24">'+o[2]+'</svg></div><h3>'+o[0]+'</h3><p>'+o[1]+'</p></div><div class="dots2">'+OB.map(function(_,i){return '<i class="'+(i==st.ob?"on":"")+'"></i>'}).join("")+'</div>'+(last?'<button class="btn" data-a="allow">Allow notifications</button><button class="btn alt" data-a="skip">Not now</button>':'<button class="btn" data-a="obn">Next</button><button class="btn alt" data-a="skip">Skip</button>')}
+if(s==1&&st.mode=="new")return signup();
+if(s==1)return '<h3>Sign in</h3><p>Enter your phone number and PIN.</p><input id="ph" type="tel" inputmode="tel" placeholder="0803 000 0000" value="'+st.ph+'" aria-label="Phone number"><p style="margin:2px 0 0">PIN. Demo: any 4 digits.</p><div class="otp">'+[0,1,2,3].map(function(i){return '<input class="o" type="password" maxlength="1" inputmode="numeric" aria-label="PIN digit '+(i+1)+'">'}).join("")+'</div><div class="err" id="err"></div><button class="lnk" data-a="resend">Forgot PIN?</button><button class="lnk" data-a="tonew">New here? Create account</button><button class="btn" data-a="verify">Sign in</button>';
+
+if(s==2&&st.mode=="new")return '<h3>Set up your shop</h3><p>Tell us where to deliver.</p><input id="shop" value="'+st.shop+'" placeholder="Shop name" aria-label="Shop name"><input id="addr" value="'+st.addr+'" placeholder="Shop address" aria-label="Address"><div class="err" id="err"></div><button class="btn" data-a="shop">Save and continue</button>';
+if(s==2)return '<h3>Mama Sade Wholesale added you</h3><p>They invited your phone number. Accept to connect, and check your shop details.</p><input id="shop" value="'+st.shop+'" aria-label="Shop name"><input value="12 Market Road, Ijebu Ode" readonly aria-label="Address"><div class="err" id="err"></div><button class="btn" data-a="shop">Accept and continue</button><button class="btn alt" style="margin-top:8px" data-a="skipinv">Not now</button>';
+if(s==3)return dash();
+if(s==4&&st.fs)return fsc();
+if(s==4&&st.sc)return scan();
+if(s==4&&st.w==null)return wl();
+if(s==4){h=head()+'<button class="lnk" data-a="wlist">&lsaquo; All wholesalers</button><h3 style="margin:2px 0">'+cw().n+'</h3><p style="margin-bottom:4px">Minimum order '+money(cw().min)+'. Delivery: '+cw().w.toLowerCase()+'.</p>'+IT.map(function(x,i){return '<div class="row"><span>'+x[0]+'<br><small style="color:var(--muted)">'+money(x[1])+' each</small></span><span class="q"><button data-a="q" data-i="'+i+'" data-d="-1" aria-label="Less">-</button>'+st.q[i]+'<button data-a="q" data-i="'+i+'" data-d="1" aria-label="More">+</button></span></div>'}).join("")+'<div class="row"><b>Total</b><b>'+money(total())+'</b></div><div style="border:1px solid var(--line);border-radius:8px;padding:9px;margin:8px 0;font-size:12px;color:var(--muted)">'+payinfo()[0]+'</div><div class="err" id="err"></div><button class="btn" data-a="place">'+payinfo()[1]+'</button>';return h+(st.inbox?inbox():"")}
+if(s==5)return head()+'<h3>'+(st.stage==4?"Delivered":st.stage==3?"On the way":"Your order")+'</h3><p>'+(st.stage==3?"Rider: Tunde, bike. Arriving in about 18 min.":money(total())+", "+RL[cw().r].toLowerCase())+'</p>'+stepper()+(st.stage==3?'<button class="btn alt" data-a="call" style="margin-top:auto">Call rider</button>':'')+(st.inbox?inbox():"");
+if(s==6&&st.rp)return rep();
+if(s==6){if(st.stage<4)return head()+'<h3>Not delivered yet</h3><p>You can confirm once the order arrives.</p><button class="btn" data-a="back5">Back to tracking</button>'+(st.inbox?inbox():"");
+if(st.done)return head()+'<h3>All recorded</h3><p>'+wtext(1)+'</p><div class="row"><span>Items received</span><span style="color:var(--ok)">3 of 3</span></div><div class="row"><span>Paid</span><span>'+money(total())+'</span></div><div class="row"><span>Balance owed</span><span>N0</span></div>'+(st.rep||!st.win?'':'<button class="btn alt" data-a="issue">Report a problem</button>')+'<button class="btn alt" data-a="again">Back to home</button>'+(st.inbox?inbox():"");
+return head()+'<h3>Delivered</h3><p>'+wtext(0)+'</p><div class="row"><span>Items</span><span>'+IT.map(function(_,i){return st.q[i]}).join(" / ")+'</span></div><div class="row"><span>Total</span><span>'+money(total())+'</span></div><button class="btn" data-a="confirm">Confirm received</button>'+(st.rep||!st.win?'':'<button class="btn alt" data-a="issue">Report a problem</button>')+(st.inbox?inbox():"")}}
+function draw(){var s=st.s,p=P[s];$("scr").innerHTML=scr();$("dots").innerHTML=P.map(function(_,k){return '<i class="'+(k<=s?"on":"")+'"></i>'}).join("");$("back").style.visibility=s?"visible":"hidden";$("next").textContent=s==P.length-1?"Restart":"Next";var m=$("sim");if(s==5&&st.stage<4){m.style.display="inline-block";m.textContent="Play wholesaler: "+SIM[st.stage]}else if(s==4&&st.rq.length){m.style.display="inline-block";m.textContent="Play wholesaler: approve the connection"}else if(s==6&&st.stage==4&&st.rep&&!st.res){m.style.display="inline-block";m.textContent="Play wholesaler: respond to the complaint"}else if(s==6&&st.stage==4&&st.win&&!st.rep){m.style.display="inline-block";m.textContent="Play time: 24 hours pass"}else m.style.display="none"}
+function go(n){st.s=n;st.inbox=0;st.sc=0;st.fs=0;st.rp=0;draw();if(n==1)var e=$("ph");}
+function err(m){var e=$("err");if(e)e.textContent=m}
+$("scr").addEventListener("input",function(e){if(e.target.id=="ph")st.ph=e.target.value;if(e.target.id=="shop")st.shop=e.target.value;if(e.target.id=="addr")st.addr=e.target.value;if(e.target.id=="fq"){st.fq=e.target.value;$("fl").innerHTML=frows()}if(e.target.id=="wq"){st.wq=e.target.value;$("wl").innerHTML=wrows()}if(e.target.className=="o"||e.target.className=="o2"){var v=e.target.value.replace(/\D/g,"");e.target.value=v;if(v&&e.target.nextElementSibling)e.target.nextElementSibling.focus()}});
+$("scr").addEventListener("click",function(e){var b=e.target.closest("[data-a]");if(!b)return;var a=b.dataset.a;
+if(a=="obn"){st.ob++;draw()}else if(a=="skip")go(1);else if(a=="allow"){st.allow=1;go(1)}
+
+else if(a=="resend")notify("PIN reset","We sent a reset code to your phone. Demo only.");
+else if(a=="create"){var p1=Array.prototype.map.call(document.querySelectorAll(".o"),function(x){return x.value}).join(""),p2=Array.prototype.map.call(document.querySelectorAll(".o2"),function(x){return x.value}).join("");if(st.ph.replace(/\D/g,"").length<10)err("Enter a valid phone number, at least 10 digits.");else if(p1.length<4)err("Choose a 4-digit PIN.");else if(p1!=p2)err("The two PINs do not match.");else go(2)}else if(a=="tonew"){st.mode="new";st.shop="";st.addr="";st.hist=[];draw()}else if(a=="toin"){st.mode="in";st.shop="Ade Provisions";st.addr="12 Market Road, Ijebu Ode";st.hist=[["Last week",61200],["2 weeks ago",48900]];draw()}else if(a=="verify"){var d=Array.prototype.map.call(document.querySelectorAll(".o"),function(x){return x.value}).join("");if(st.ph.replace(/\D/g,"").length<10)err("Enter a valid phone number, at least 10 digits.");else if(d.length<4)err("Enter your 4-digit PIN.");else go(2)}
+else if(a=="shop"){if(!st.shop.trim())err("Enter your shop name.");else if(st.mode=="new"&&!st.addr.trim())err("Enter your shop address.");else go(3)}
+else if(a=="fs"){st.fs=1;st.fq="";draw()}else if(a=="fsx"){st.fs=0;draw()}else if(a=="req"){var ri=+b.dataset.i;if(st.rq.indexOf(ri)<0)st.rq.push(ri);draw();notify("Request sent",D[ri].n+" will review your request.")}else if(a=="skipinv"){st.acc=0;go(3)}else if(a=="scan"){st.sc=1;draw()}else if(a=="scanx"){st.sc=0;draw()}else if(a=="scanok"){st.sc=0;st.w=1;IT=W[1].it;st.q=[0,0,0];draw();notify("Connected","Bola Beverages Depot was added to your list.")}else if(a=="pick"){st.w=+b.dataset.i;IT=W[st.w].it;st.q=st.w==0?[5,2,10]:[0,0,0];draw()}else if(a=="wlist"){st.w=null;draw()}else if(a=="wf"){st.wf=b.dataset.v;draw()}else if(a=="q"){var i=+b.dataset.i;st.q[i]=Math.max(0,st.q[i]+(+b.dataset.d));draw()}
+else if(a=="pay"){st.pay=b.dataset.v;draw()}
+else if(a=="place"){if(!total())err("Add at least one item.");else if(total()<cw().min)err("Minimum order is "+money(cw().min)+".");else{st.stage=0;st.placed=1;go(5);notify("Order sent",cw().n+" received your order of "+money(total())+".")}}
+else if(a=="bell"){st.inbox=!st.inbox;if(!st.inbox||true)st.n.forEach(function(x){if(st.inbox)x.r=1});draw()}
+else if(a=="call")notify("Calling Tunde","Demo only. No call is made.");
+else if(a=="back5"||a=="track")go(5);else if(a=="restock"){st.w=null;go(4)}
+else if(a=="confirm"){st.done=1;st.hist.unshift(["Today",total()]);draw();notify("Order recorded","Thanks. We have saved this delivery to your history.")}
+else if(a=="issue"){st.rp=1;st.ph1=0;draw()}else if(a=="rr"){st.rr=+b.dataset.v;draw()}else if(a=="photo"){st.ph1=1;draw()}else if(a=="rcan"){st.rp=0;draw()}else if(a=="rsub"){st.rp=0;st.rep=1;draw();notify("Report sent",cw().n+" has been told. Your payment stays held while they respond.")}
+else if(a=="again"){var n=st.n,hh=st.hist,m=st.mode,sh=st.shop,ad=st.addr;reset();st.n=n;st.hist=hh;st.mode=m;st.shop=sh;st.addr=ad;go(3)}});
+$("sim").onclick=function(){if(st.s==4){var ap=st.rq.slice();st.rq=[];ap.forEach(function(i){W.push(D[i])});draw();notify("Connection approved",ap.map(function(i){return D[i].n}).join(", ")+" approved your request. You can order now.");return}if(st.s==6){if(st.rep&&!st.res){st.res=1;draw();notify("Complaint update",cw().n+" offered a 10% refund and a replacement for the damaged items.")}else if(st.win&&!st.rep){st.win=0;draw();notify("Payment released","The 24-hour window closed. "+money(total())+" was released to "+cw().n+".")}return}st.stage++;var n=NT[st.stage-1];draw();notify(n[0],n[1].replace("{w}",cw().n))};
+$("next").onclick=function(){if(st.s==P.length-1){reset();draw()}else go(st.s+1)};
+$("back").onclick=function(){if(st.s>0)go(st.s-1)};
+reset();draw();
+</script>
+</body>
+</html>
